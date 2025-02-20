@@ -1,5 +1,9 @@
+import sys
+from shot import Shot
 from player import Player
 from constants import *
+from asteroid import Asteroid
+from asteroidfield import AsteroidField
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
@@ -9,12 +13,18 @@ def main():
   screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
   clock = pygame.time.Clock()
   
-
-  updateable = pygame.sprite.Group()
+  updatable = pygame.sprite.Group()
   drawable = pygame.sprite.Group()
+  asteroids = pygame.sprite.Group()
+  shots = pygame.sprite.Group()
 
-  Player.containers = (updateable, drawable)
+  Shot.containers = (updatable, drawable)
+  
+  Asteroid.containers = (asteroids, updatable, drawable)
+  AsteroidField.containers = (updatable)
+  asteroid_field = AsteroidField()
 
+  Player.containers = (updatable, drawable)
   player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
   dt = 0
@@ -25,7 +35,13 @@ def main():
         return
       
     screen.fill((0, 0, 0))
-    updateable.update(dt)
+    updatable.update(dt)
+    
+    for obj in asteroids:
+      if obj.collisionCheck(player):
+        print("Game over!")
+        sys.exit()
+
     for obj in drawable:
       obj.draw(screen)
     pygame.display.flip()
